@@ -201,13 +201,13 @@ function loop(now) {
   lastTime = now;
 
   if (isPlaying) {
-    speed += 0.00003 * dt;
+    speed += 0.000012 * dt; // slower speed ramp
     runDistance += speed * dt;
-    score += speed * dt * 12;
+    score += speed * dt * 10;
     updateScore(score);
 
-    // lane smoothing
-    playerGroup.position.x += (LANES[laneIndex] - playerGroup.position.x) * 0.18 * dt;
+    // lane smoothing — faster dodge
+    playerGroup.position.x += (LANES[laneIndex] - playerGroup.position.x) * 0.35 * dt;
 
     // jump physics
     if (body.userData.jumping) {
@@ -244,17 +244,17 @@ function loop(now) {
     // road texture scroll
     roadMat.map.offset.y -= speed * 0.03 * dt;
 
-    // spawn
+    // spawn — fewer obstacles, slower ramp
     spawnTimer -= dt;
     if (spawnTimer <= 0) {
       addObstacle();
-      spawnTimer = 90 - Math.min(60, score / 30);
+      spawnTimer = 110 - Math.min(45, score / 60);
     }
 
     // move obstacles / collision
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const o = obstacles[i];
-      o.position.z += speed * dt * 12;
+      o.position.z += speed * dt * 10; // slower approach
       if (o.position.z > 6) {
         scene.remove(o);
         obstacles.splice(i, 1);
@@ -262,9 +262,9 @@ function loop(now) {
         continue;
       }
       if (
-        Math.abs(o.position.z - playerGroup.position.z) < 0.85 &&
-        Math.abs(o.position.x - playerGroup.position.x) < 0.95 &&
-        body.position.y < o.userData.hitY + 0.55
+        Math.abs(o.position.z - playerGroup.position.z) < 0.72 &&
+        Math.abs(o.position.x - playerGroup.position.x) < 0.82 &&
+        body.position.y < o.userData.hitY + 0.45
       ) {
         endGame();
         break;
